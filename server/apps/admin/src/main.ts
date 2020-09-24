@@ -5,6 +5,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // 解决跨域问题
+  app.enableCors();
+
   // DocumentBuilder是一个辅助类，有助于结构的基本文件SwaggerModule。
   // 它包含几种方法，可用于设置诸如标题，描述，版本等属性。
   const options = new DocumentBuilder()
