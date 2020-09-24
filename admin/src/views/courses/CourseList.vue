@@ -63,19 +63,19 @@ export default class CourseList extends Vue {
   }
 
   // 删除数据
-  async remove(row) {
-    try {
-      // confirm：element-UI中的一个方法，弹出一个确认框
-      await this.$confirm('是否确认删除？');
-    } catch (e) {
-      return;
-    }
-    await this.$http.delete(`courses/${row._id}`);
-    this.$message.success('删除成功');
+  // async remove(row) {
+  //   try {
+  //     // confirm：element-UI中的一个方法，弹出一个确认框
+  //     await this.$confirm('是否确认删除？');
+  //   } catch (e) {
+  //     return;
+  //   }
+  //   await this.$http.delete(`courses/${row._id}`);
+  //   this.$message.success('删除成功');
 
-    // 重新获取一遍数据
-    this.fetch();
-  }
+  //   // 重新获取一遍数据
+  //   this.fetch();
+  // }
   created() {
     this.fetch();
   }

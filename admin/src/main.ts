@@ -1,14 +1,15 @@
 import Vue from 'vue';
 import App from './App.vue';
 import './plugins/element';
+import './plugins/avue.js';
 import router from './router';
-import EleForm from 'vue-ele-form';
+// import EleForm from 'vue-ele-form';
 import axios from 'axios';
 
 Vue.config.productionTip = false;
 
 // 注册 vue-ele-form
-Vue.use(EleForm);
+// Vue.use(EleForm);
 
 Vue.prototype.$http = axios.create({
   // 指向服务端的接口根地址
