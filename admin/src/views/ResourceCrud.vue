@@ -1,51 +1,70 @@
 <template>
   <div>
     <avue-crud
+      v-if="option.column"
+      :page.sync="page"
       :data="data.data"
       :option="option"
       @row-save="create"
       @row-update="update"
       @row-del="remove"
+      @on-load="changePage"
     ></avue-crud>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component({})
-export default class CourseList extends Vue {
+export default class ResourceList extends Vue {
+  @Prop(String) resource: string;
+
   data = {};
+  option = {};
+  page = {
+    // pageSize: 2,
+    // pageSizes: [2, 4, 6],
 
-  // fields 表示字段标题
-  fields = {
-    _id: { label: 'ID' },
-    name: { label: '课程名称' },
-    cover: { label: '课程封面图' },
+    total: 0,
   };
 
-  option = {
-    title: '课程管理',
-    column: [
-      { prop: 'name', label: '课程名称' },
-      { prop: 'cover', label: '课程封面图' },
-    ],
+  query: any = {
+    limit: 2,
   };
+
+  async fetchOption() {
+    // 访问后端接口：courses,访问方式: Get
+    const res = await this.$http.get(`${this.resource}/option`);
+
+    // 将拿到的数据，存储到当前的data属性中，以便后面用这个属性进行前端渲染
+    this.option = res.data;
+  }
+
+  async changePage({ pageSize, currentPage }) {
+    this.query.page = currentPage;
+    this.query.limit = pageSize;
+    this.fetch();
+  }
 
   // 从后台服务端获取数据，涉及到跨域，所以是异步操作
   async fetch() {
     // 访问后端接口：courses,访问方式: Get
-    const res = await this.$http.get('courses');
+    const res = await this.$http.get(`${this.resource}`, {
+      params: {
+        query: this.query,
+      },
+    });
 
-    // 如果不知道怎么使用res，可以将res打印出来看看
-    console.log(res); // 就会发现，我们想要的获取的数据，存储在了res.data中
+    // 分页的total
+    this.page.total = res.data.total;
 
     // 将拿到的数据，存储到当前的data属性中，以便后面用这个属性进行前端渲染
     this.data = res.data;
   }
 
   async create(row, done) {
-    await this.$http.post('courses', row);
+    await this.$http.post(`${this.resource}`, row);
     this.$message.success('创建成功');
     this.fetch();
     done();
@@ -55,7 +74,7 @@ export default class CourseList extends Vue {
     // 我们使用avue编辑数据的时候，会在数据中添加一个$index
     const data = JSON.parse(JSON.stringify(row));
     delete data.$index;
-    await this.$http.put(`courses/${row._id}`, data);
+    await this.$http.put(`${this.resource}/${row._id}`, data);
     this.$message.success('更新成功');
     this.fetch();
     done();
@@ -69,13 +88,14 @@ export default class CourseList extends Vue {
     } catch (e) {
       return;
     }
-    await this.$http.delete(`courses/${row._id}`);
+    await this.$http.delete(`${this.resource}/${row._id}`);
     this.$message.success('删除成功');
 
     // 重新获取一遍数据
     this.fetch();
   }
   created() {
+    this.fetchOption();
     this.fetch();
   }
 }
